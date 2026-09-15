@@ -1,6 +1,6 @@
 # minib64
 
-A small and lightweight Base64 encoding and decoding library written in C. I made it to learn about base64.
+A small and lightweight Base64 encoding and decoding library written in C. I made it to learn base64.
 
 ## Features
 
