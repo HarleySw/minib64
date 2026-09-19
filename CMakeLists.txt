@@ -6,6 +6,8 @@ project(minib64
   LANGUAGES C
 )
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_library(minib64
   STATIC src/base64.c
 )
@@ -19,6 +21,8 @@ target_include_directories(minib64
 target_compile_features(minib64
   PUBLIC c_std_11
 )
+
+add_subdirectory(examples/)
 
 include(GNUInstallDirs)
 
