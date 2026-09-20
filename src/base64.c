@@ -11,11 +11,22 @@ static const char base64_table[] =
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
-char *
-minib64_encode(const unsigned char* data, size_t len) {
-    size_t out_len = ((len + 2) / 3) * 4 + 1;
+minib64_status_t
+minib64_encode(const unsigned char *in, size_t in_len, char **out, size_t *out_len) {
+    if (in_len == 0 || in == NULL) {
+        return MINIB64_ERR_INVALID_PARAMS;
+    }
 
-    char *out_str = malloc(out_len);
+    if (in_len > ((SIZE_MAX - 5) / 4) * 3) {
+        return MINIB64_ERR_OVERFLOW;
+    }
+
+    *out_len = ((in_len + 2) / 3) * 4 + 1;
+
+    *out = malloc(*out_len);    
+    if (out == NULL) {
+        return MINIB64_ERR_NO_MEMORY;
+    }
 
     size_t i,j;
     uint32_t a,b,c;
@@ -23,17 +34,18 @@ minib64_encode(const unsigned char* data, size_t len) {
 
     i = j = 0;
     read_b = read_c = false;
+    a = b = c = 0;
 
-    while (i < len) {
-        a = data[i++];
+    while (i < in_len) {
+        a = in[i++];
 
-        if (i < len) {
-            b = data[i++];
+        if (i < in_len) {
+            b = in[i++];
             read_b = true;
         }
 
-        if (i < len) {
-            c = data[i++];
+        if (i < in_len) {
+            c = in[i++];
             read_c = true;
         }
 
@@ -42,33 +54,34 @@ minib64_encode(const unsigned char* data, size_t len) {
             (b << 8) |
             c;
 
-        out_str[j++] = *(base64_table + ((triple >> 18) & 0x3F));
-        out_str[j++] = *(base64_table + ((triple >> 12) & 0x3F));
+        (*out)[j++] = *(base64_table + ((triple >> 18) & 0x3F));
+        (*out)[j++] = *(base64_table + ((triple >> 12) & 0x3F));
 
         if (read_b) {
-            out_str[j++] = *(base64_table + ((triple >> 6) & 0x3F));
+            (*out)[j++] = *(base64_table + ((triple >> 6) & 0x3F));
         } else {
-            out_str[j++] = '=';
+            (*out)[j++] = '=';
         }
 
         if (read_c) {
-            out_str[j++] = *(base64_table + (triple & 0x3F));
+            (*out)[j++] = *(base64_table + (triple & 0x3F));
         } else {
-            out_str[j++] = '=';
+            (*out)[j++] = '=';
         }
 
         read_b = read_c = false;
+        a = b = c = 0;
     }
 
-    out_str[j] = '\0';
+    (*out)[j] = '\0';
 
-    return out_str;
+    return MINIB64_SUCCESS;
 }
 
 minib64_status_t
 minib64_decode(const char* in, size_t in_len, unsigned char **out, size_t* out_len) {
     if (in_len == 0 || in_len % 4 != 0) {
-        return MINIB64_INVALID_LENGTH;
+        return MINIB64_ERR_INVALID_LENGTH;
     }
 
     for (size_t i = 0; i < in_len; i++) {
@@ -81,11 +94,11 @@ minib64_decode(const char* in, size_t in_len, unsigned char **out, size_t* out_l
         }
 
         if (in[i] != '=' && !found) {
-            return MINIB64_INVALID_CHARACTER;
+            return MINIB64_ERR_INVALID_CHARACTER;
         }
 
         if (in[i] == '=' && i < in_len - 2) {
-            return MINIB64_INVALID_PADDING;
+            return MINIB64_ERR_INVALID_PADDING;
         }
     }
 

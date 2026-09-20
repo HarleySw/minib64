@@ -15,3 +15,7 @@ A small and lightweight Base64 encoding and decoding library written in C. I mad
 
 * C compiler
 * CMake 3.15 or later
+
+## Reference
+
+- [RFC 4648](https://www.rfc-editor.org/info/rfc4648/)

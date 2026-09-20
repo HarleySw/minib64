@@ -1,17 +1,17 @@
-add_executable(minib64_example_1
-  example_1.c
+add_executable(minib64_example_encode
+  example_encode.c
 )
 
-target_link_libraries(minib64_example_1
+target_link_libraries(minib64_example_encode
   PRIVATE
     minib64
 )
 
-add_executable(minib64_example_2
-  example_2.c
+add_executable(minib64_example_decode
+  example_decode.c
 )
 
-target_link_libraries(minib64_example_2
+target_link_libraries(minib64_example_decode
   PRIVATE
     minib64
 )
