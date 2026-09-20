@@ -13,7 +13,7 @@ static const char base64_table[] =
 
 minib64_status_t
 minib64_encode(const unsigned char *in, size_t in_len, char **out, size_t *out_len) {
-    if (in_len == 0 || in == NULL) {
+    if (in == NULL || out == NULL || out_len == NULL) {
         return MINIB64_ERR_INVALID_PARAMS;
     }
 
@@ -21,10 +21,10 @@ minib64_encode(const unsigned char *in, size_t in_len, char **out, size_t *out_l
         return MINIB64_ERR_OVERFLOW;
     }
 
-    *out_len = ((in_len + 2) / 3) * 4 + 1;
+    *out_len = ((in_len + 2) / 3) * 4;
 
-    *out = malloc(*out_len);    
-    if (out == NULL) {
+    *out = malloc(*out_len + 1);    
+    if (*out == NULL) {
         return MINIB64_ERR_NO_MEMORY;
     }
 
