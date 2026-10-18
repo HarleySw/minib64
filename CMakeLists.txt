@@ -35,3 +35,10 @@ install(
   DIRECTORY include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+include(CTest)
+
+if(BUILD_TESTING)
+  add_subdirectory(external/unity/)
+  add_subdirectory(tests/)
+endif()
