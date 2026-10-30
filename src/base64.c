@@ -128,8 +128,21 @@ minib64_decode(const char* in, size_t in_len, unsigned char **out, size_t* out_l
         return MINIB64_ERR_INVALID_PARAMS;
     }
 
-    if (in_len == 0 || in_len % 4 != 0) {
+    if (in_len % 4 != 0) {
         return MINIB64_ERR_INVALID_LENGTH;
+    }
+
+    // RFC 4648: an empty Base64 string represents empty data.
+    // Handle it before accessing in[in_len - 1] below. Allocate one byte
+    // so callers can always free(*out), consistent with non-empty input.
+    if (in_len == 0) {
+        *out_len = 0;
+        *out = malloc(1);
+        if (*out == NULL) {
+            return MINIB64_ERR_NO_MEMORY;
+        }
+
+        return MINIB64_SUCCESS;
     }
 
     size_t padding = 0;
